@@ -1,0 +1,24 @@
+[project]
+name = "image-gs"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "lpips>=0.1.4",
+    "matplotlib>=3.10.6",
+    "numpy>=2.2.6",
+    "pytorch-msssim>=1.0.0",
+    "scikit-image>=0.25.2",
+    "scipy>=1.15.3",
+    "torch>=2.8.0",
+    "torchmetrics>=1.8.2",
+    "torchvision>=0.23.0",
+    "fused_ssim"
+]
+
+[tool.uv.sources]
+fused_ssim = { git = "https://github.com/rahul-goel/fused-ssim/" }
+
+[tool.uv.extra-build-dependencies]
+fused-ssim = ["torch", "numpy"]
