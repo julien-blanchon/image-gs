@@ -17,7 +17,11 @@ def get_smap(image, path, filter_size=15):
     sod_res = (480, 640)
     imagenet_model = resnet.resnet50(f"{path}/emlnet/res_imagenet.pth").cuda().eval()
     places_model = resnet.resnet50(f"{path}/emlnet/res_places.pth").cuda().eval()
-    decoder_model = decoder.build_decoder(f"{path}/emlnet/res_decoder.pth", sod_res, 5, 5).cuda().eval()
+    decoder_model = (
+        decoder.build_decoder(f"{path}/emlnet/res_decoder.pth", sod_res, 5, 5)
+        .cuda()
+        .eval()
+    )
     image_sod = resize(image, sod_res).unsqueeze(0)
     with torch.no_grad():
         imagenet_feat = imagenet_model(image_sod, decode=True)

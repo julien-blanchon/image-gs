@@ -8,7 +8,7 @@ from rich.console import Console
 from torch.utils.cpp_extension import _get_build_directory, load
 
 PATH = os.path.dirname(os.path.abspath(__file__))
-os.environ["TORCH_CUDA_ARCH_LIST"] = "8.0;8.6;8.7;8.9"
+os.environ["TORCH_CUDA_ARCH_LIST"] = "8.0;8.6;8.7;8.9;9.0"
 
 
 def cuda_toolkit_available():
@@ -18,7 +18,7 @@ def cuda_toolkit_available():
         return True
     except FileNotFoundError:
         return False
-    
+
 
 def cuda_toolkit_version():
     """Get the cuda toolkit version."""

@@ -82,7 +82,7 @@ def get_extensions():
         extra_compile_args["nvcc"] += ["-DWIN32_LEAN_AND_MEAN"]
 
     extension = CUDAExtension(
-        f"gsplat.csrc",
+        "gsplat.csrc",
         sources,
         include_dirs=[osp.join(extensions_dir, "third_party", "glm")],
         define_macros=define_macros,

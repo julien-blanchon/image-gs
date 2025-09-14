@@ -1,9 +1,7 @@
 """Python bindings for custom Cuda functions"""
 
-from typing import Optional
-
 import torch
-from jaxtyping import Float, Int
+from jaxtyping import Float
 from torch import Tensor
 from torch.autograd import Function
 
@@ -15,7 +13,7 @@ def rasterize_gaussians_no_tiles(
     conics: Float[Tensor, "*batch 3"],
     colors: Float[Tensor, "*batch channels"],
     img_height: int,
-    img_width: int
+    img_width: int,
 ) -> Tensor:
     if colors.dtype == torch.uint8:
         # make sure colors are float [0,1]
@@ -32,7 +30,7 @@ def rasterize_gaussians_no_tiles(
         conics.contiguous(),
         colors.contiguous(),
         img_height,
-        img_width
+        img_width,
     )
 
 
@@ -46,7 +44,7 @@ class _RasterizeGaussiansNoTiles(Function):
         conics: Float[Tensor, "*batch 3"],
         colors: Float[Tensor, "*batch channels"],
         img_height: int,
-        img_width: int
+        img_width: int,
     ) -> Tensor:
         num_points = xys.size(0)
         img_size = (img_width, img_height, 1)
@@ -55,18 +53,9 @@ class _RasterizeGaussiansNoTiles(Function):
         ctx.img_height = img_height
 
         out_img, pixel_topk = _C.nd_rasterize_forward_no_tiles(
-            img_size,
-            num_points,
-            xys,
-            conics,
-            colors
+            img_size, num_points, xys, conics, colors
         )
-        ctx.save_for_backward(
-            xys,
-            conics,
-            colors,
-            pixel_topk.contiguous()
-        )
+        ctx.save_for_backward(xys, conics, colors, pixel_topk.contiguous())
 
         return out_img
 
@@ -74,21 +63,10 @@ class _RasterizeGaussiansNoTiles(Function):
     def backward(ctx, v_out_img):
         img_height = ctx.img_height
         img_width = ctx.img_width
-        
-        (
-            xys,
-            conics,
-            colors,
-            pixel_topk
-        ) = ctx.saved_tensors
+
+        (xys, conics, colors, pixel_topk) = ctx.saved_tensors
         v_xy, v_conic, v_colors = _C.nd_rasterize_backward_no_tiles(
-            img_height,
-            img_width,
-            xys,
-            conics,
-            colors,
-            v_out_img,
-            pixel_topk
+            img_height, img_width, xys, conics, colors, v_out_img, pixel_topk
         )
 
         return (
@@ -98,16 +76,16 @@ class _RasterizeGaussiansNoTiles(Function):
             None,  # img_height
             None,  # img_width
         )
-    
+
+
 def rasterize_gaussians_simple(
-    xys:    Float[Tensor, "*batch 2"],
-    scale:  Float[Tensor, "*batch 2"],
-    rot:    Float[Tensor, "*batch"],
+    xys: Float[Tensor, "*batch 2"],
+    scale: Float[Tensor, "*batch 2"],
+    rot: Float[Tensor, "*batch"],
     feat: Float[Tensor, "*batch channels"],
     img_height: int,
-    img_width: int
+    img_width: int,
 ) -> Tensor:
-    
     if xys.ndimension() != 2 or xys.size(1) != 2:
         raise ValueError("xys must have dimensions (N, 2)")
     if feat.ndimension() != 2:
@@ -119,7 +97,7 @@ def rasterize_gaussians_simple(
         rot.contiguous(),
         feat.contiguous(),
         img_height,
-        img_width
+        img_width,
     )
 
 
@@ -129,12 +107,12 @@ class _RasterizeGaussiansSimple(Function):
     @staticmethod
     def forward(
         ctx,
-        xys:    Float[Tensor, "*batch 2"],
-        scale:  Float[Tensor, "*batch 2"],
-        rot:    Float[Tensor, "*batch"],
-        feat:   Float[Tensor, "*batch channels"],
+        xys: Float[Tensor, "*batch 2"],
+        scale: Float[Tensor, "*batch 2"],
+        rot: Float[Tensor, "*batch"],
+        feat: Float[Tensor, "*batch channels"],
         img_height: int,
-        img_width: int
+        img_width: int,
     ) -> Tensor:
         num_points = xys.size(0)
         img_size = (img_width, img_height, 1)
@@ -143,20 +121,9 @@ class _RasterizeGaussiansSimple(Function):
         ctx.img_height = img_height
 
         out_img, pixel_topk = _C.nd_rasterize_forward_simple(
-            img_size,
-            num_points,
-            xys,
-            scale,
-            rot,
-            feat
+            img_size, num_points, xys, scale, rot, feat
         )
-        ctx.save_for_backward(
-            xys,
-            scale,
-            rot,
-            feat,
-            pixel_topk.contiguous()
-        )
+        ctx.save_for_backward(xys, scale, rot, feat, pixel_topk.contiguous())
 
         return out_img
 
@@ -164,30 +131,17 @@ class _RasterizeGaussiansSimple(Function):
     def backward(ctx, v_out_img):
         img_height = ctx.img_height
         img_width = ctx.img_width
-        
-        (
-            xys,
-            scale,
-            rot,
-            feat,
-            pixel_topk
-        ) = ctx.saved_tensors
+
+        (xys, scale, rot, feat, pixel_topk) = ctx.saved_tensors
 
         v_xy, v_scale, v_rot, v_feat = _C.nd_rasterize_backward_simple(
-            img_height,
-            img_width,
-            xys,
-            scale,
-            rot,
-            feat,
-            v_out_img,
-            pixel_topk
+            img_height, img_width, xys, scale, rot, feat, v_out_img, pixel_topk
         )
 
         return (
-            v_xy,    # xys
-            v_scale, # scale
-            v_rot,   # rot
+            v_xy,  # xys
+            v_scale,  # scale
+            v_rot,  # rot
             v_feat,  # feat
             None,  # img_height
             None,  # img_width

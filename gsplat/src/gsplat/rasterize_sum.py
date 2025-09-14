@@ -1,7 +1,5 @@
 """Python bindings for custom Cuda functions"""
 
-from typing import Optional
-
 import torch
 from jaxtyping import Float, Int
 from torch import Tensor
@@ -19,9 +17,9 @@ def rasterize_gaussians_sum(
     colors: Float[Tensor, "*batch channels"],
     img_height: int,
     img_width: int,
-    BLOCK_H: int=16,
-    BLOCK_W: int=16,
-    topk_norm: bool=False
+    BLOCK_H: int = 16,
+    BLOCK_W: int = 16,
+    topk_norm: bool = False,
 ) -> Tensor:
     if colors.dtype == torch.uint8:
         # make sure colors are float [0,1]
@@ -41,9 +39,9 @@ def rasterize_gaussians_sum(
         colors.contiguous(),
         img_height,
         img_width,
-        BLOCK_H, 
+        BLOCK_H,
         BLOCK_W,
-        topk_norm
+        topk_norm,
     )
 
 
@@ -60,9 +58,9 @@ class _RasterizeGaussiansSum(Function):
         colors: Float[Tensor, "*batch channels"],
         img_height: int,
         img_width: int,
-        BLOCK_H: int=16,
-        BLOCK_W: int=16,
-        topk_norm: bool=False
+        BLOCK_H: int = 16,
+        BLOCK_W: int = 16,
+        topk_norm: bool = False,
     ) -> Tensor:
         num_points = xys.size(0)
         BLOCK_X, BLOCK_Y = BLOCK_W, BLOCK_H
@@ -77,11 +75,11 @@ class _RasterizeGaussiansSum(Function):
         num_intersects, cum_tiles_hit = compute_cumulative_intersects(num_tiles_hit)
 
         if num_intersects < 1:
-            out_img = (
-                torch.zeros(img_height, img_width, colors.shape[-1], device=xys.device)
+            out_img = torch.zeros(
+                img_height, img_width, colors.shape[-1], device=xys.device
             )
             gaussian_ids_sorted = torch.zeros(0, 1, device=xys.device)
-            tile_bins =           torch.zeros(0, 2, device=xys.device)
+            tile_bins = torch.zeros(0, 2, device=xys.device)
         else:
             (
                 isect_ids_unsorted,
@@ -97,7 +95,7 @@ class _RasterizeGaussiansSum(Function):
                 cum_tiles_hit,
                 tile_bounds,
             )
-        
+
         ctx.img_width = img_width
         ctx.img_height = img_height
         ctx.BLOCK_H = BLOCK_H
@@ -106,12 +104,12 @@ class _RasterizeGaussiansSum(Function):
         ctx.topk_norm = topk_norm
 
         if not topk_norm:
-        # if colors.shape[-1] == 3:
-        #     rasterize_fn = _C.rasterize_forward
-        # else:
+            # if colors.shape[-1] == 3:
+            #     rasterize_fn = _C.rasterize_forward
+            # else:
             rasterize_fn = _C.nd_rasterize_forward
 
-            out_img,  = rasterize_fn(
+            (out_img,) = rasterize_fn(
                 tile_bounds,
                 block,
                 img_size,
@@ -122,13 +120,7 @@ class _RasterizeGaussiansSum(Function):
                 colors,
             )
 
-            ctx.save_for_backward(
-                gaussian_ids_sorted,
-                tile_bins,
-                xys,
-                conics,
-                colors
-            )
+            ctx.save_for_backward(gaussian_ids_sorted, tile_bins, xys, conics, colors)
         else:
             out_img, pixel_topk = _C.nd_rasterize_forward_topk_norm(
                 tile_bounds,
@@ -146,7 +138,7 @@ class _RasterizeGaussiansSum(Function):
                 xys,
                 conics,
                 colors,
-                pixel_topk.contiguous()
+                pixel_topk.contiguous(),
             )
 
         return out_img
@@ -160,19 +152,20 @@ class _RasterizeGaussiansSum(Function):
         num_intersects = ctx.num_intersects
         topk_norm = ctx.topk_norm
 
+        if topk_norm:
+            gaussian_ids_sorted, tile_bins, xys, conics, colors, pixel_topk = (
+                ctx.saved_tensors
+            )
+        else:
+            gaussian_ids_sorted, tile_bins, xys, conics, colors = ctx.saved_tensors
+
         if num_intersects < 1:
             v_xy = torch.zeros_like(xys)
             v_conic = torch.zeros_like(conics)
             v_colors = torch.zeros_like(colors)
-        
+
         elif not topk_norm:
-            (
-                gaussian_ids_sorted,
-                tile_bins,
-                xys,
-                conics,
-                colors
-            ) = ctx.saved_tensors
+            (gaussian_ids_sorted, tile_bins, xys, conics, colors) = ctx.saved_tensors
             # if colors.shape[-1] == 3:
             #     rasterize_fn = _C.rasterize_backward
             # else:
@@ -187,17 +180,12 @@ class _RasterizeGaussiansSum(Function):
                 xys,
                 conics,
                 colors,
-                v_out_img
+                v_out_img,
             )
         else:
-            (
-                gaussian_ids_sorted,
-                tile_bins,
-                xys,
-                conics,
-                colors,
-                pixel_topk
-            ) = ctx.saved_tensors
+            (gaussian_ids_sorted, tile_bins, xys, conics, colors, pixel_topk) = (
+                ctx.saved_tensors
+            )
             v_xy, v_conic, v_colors = _C.nd_rasterize_backward_topk_norm(
                 img_height,
                 img_width,
@@ -209,7 +197,7 @@ class _RasterizeGaussiansSum(Function):
                 conics,
                 colors,
                 v_out_img,
-                pixel_topk
+                pixel_topk,
             )
 
         return (

@@ -48,7 +48,9 @@ def map_gaussian_to_intersects(
 
 
 def get_tile_bin_edges(
-    num_intersects: int, num_tiles: int, isect_ids_sorted: Int[Tensor, "num_intersects 1"]
+    num_intersects: int,
+    num_tiles: int,
+    isect_ids_sorted: Int[Tensor, "num_intersects 1"],
 ) -> Int[Tensor, "num_intersects 2"]:
     """Map sorted intersection IDs to tile bins which give the range of unique gaussian IDs belonging to each tile.
 
@@ -68,11 +70,13 @@ def get_tile_bin_edges(
 
         - **tile_bins** (Tensor): range of gaussians IDs hit per tile.
     """
-    return _C.get_tile_bin_edges(num_intersects, num_tiles, isect_ids_sorted.contiguous())
+    return _C.get_tile_bin_edges(
+        num_intersects, num_tiles, isect_ids_sorted.contiguous()
+    )
 
 
 def compute_cov2d_bounds(
-    cov2d: Float[Tensor, "batch 3"]
+    cov2d: Float[Tensor, "batch 3"],
 ) -> Tuple[Float[Tensor, "batch_conics 3"], Float[Tensor, "batch_radii 1"]]:
     """Computes bounds of 2D covariance matrix
 
@@ -85,16 +89,16 @@ def compute_cov2d_bounds(
         - **conic** (Tensor): conic parameters for 2D gaussian.
         - **radii** (Tensor): radii of 2D gaussian projections.
     """
-    assert (
-        cov2d.shape[-1] == 3
-    ), f"Expected input cov2d to be of shape (*batch, 3) (upper triangular values), but got {tuple(cov2d.shape)}"
+    assert cov2d.shape[-1] == 3, (
+        f"Expected input cov2d to be of shape (*batch, 3) (upper triangular values), but got {tuple(cov2d.shape)}"
+    )
     num_pts = cov2d.shape[0]
     assert num_pts > 0
     return _C.compute_cov2d_bounds(num_pts, cov2d.contiguous())
 
 
 def compute_cumulative_intersects(
-    num_tiles_hit: Float[Tensor, "batch 1"]
+    num_tiles_hit: Float[Tensor, "batch 1"],
 ) -> Tuple[int, Float[Tensor, "batch 1"]]:
     """Computes cumulative intersections of gaussians. This is useful for creating unique gaussian IDs and for sorting.
 
@@ -158,5 +162,7 @@ def bin_and_sort_gaussians(
     )
     isect_ids_sorted, sorted_indices = torch.sort(isect_ids)
     gaussian_ids_sorted = torch.gather(gaussian_ids, 0, sorted_indices)
-    tile_bins = get_tile_bin_edges(num_intersects, tile_bounds[0]*tile_bounds[1], isect_ids_sorted)
+    tile_bins = get_tile_bin_edges(
+        num_intersects, tile_bounds[0] * tile_bounds[1], isect_ids_sorted
+    )
     return isect_ids, gaussian_ids, isect_ids_sorted, gaussian_ids_sorted, tile_bins

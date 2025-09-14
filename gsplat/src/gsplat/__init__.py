@@ -2,7 +2,7 @@ from typing import Any
 import torch
 from .project_gaussians_2d_scale_rot import project_gaussians_2d_scale_rot
 from .rasterize_sum import rasterize_gaussians_sum
-from .rasterize_no_tiles import rasterize_gaussians_no_tiles, rasterize_gaussians_simple
+from .rasterize_no_tiles import rasterize_gaussians_no_tiles
 from .utils import (
     map_gaussian_to_intersects,
     bin_and_sort_gaussians,
@@ -33,6 +33,7 @@ __all__ = [
 ]
 
 # Define these for backwards compatibility
+
 
 class MapGaussiansToIntersects(torch.autograd.Function):
     @staticmethod
@@ -104,7 +105,6 @@ class BinAndSortGaussians(torch.autograd.Function):
         raise NotImplementedError
 
 
-
 class ProjectGaussians2dScaleRot(torch.autograd.Function):
     @staticmethod
     def forward(ctx, *args, **kwargs):
@@ -119,7 +119,6 @@ class ProjectGaussians2dScaleRot(torch.autograd.Function):
         raise NotImplementedError
 
 
-
 class RasterizeGaussiansSum(torch.autograd.Function):
     @staticmethod
     def forward(ctx, *args, **kwargs):
@@ -132,5 +131,3 @@ class RasterizeGaussiansSum(torch.autograd.Function):
     @staticmethod
     def backward(ctx: Any, *grad_outputs: Any) -> Any:
         raise NotImplementedError
-
-

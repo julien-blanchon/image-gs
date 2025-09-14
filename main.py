@@ -18,7 +18,8 @@ def get_gaussian_cfg(args):
     max_bits = max(args.pos_bits, args.scale_bits, args.rot_bits, args.feat_bits)
     if min_bits < 4 or max_bits > 32:
         raise ValueError(
-            f"Bit precision must be between 4 and 32 but got: {args.pos_bits:d}, {args.scale_bits:d}, {args.rot_bits:d}, {args.feat_bits:d}")
+            f"Bit precision must be between 4 and 32 but got: {args.pos_bits:d}, {args.scale_bits:d}, {args.rot_bits:d}, {args.feat_bits:d}"
+        )
     gaussian_cfg += f"_bits-{args.pos_bits:d}-{args.scale_bits:d}-{args.rot_bits:d}-{args.feat_bits:d}"
     if not args.disable_topk_norm:
         gaussian_cfg += f"_top-{args.topk:d}"

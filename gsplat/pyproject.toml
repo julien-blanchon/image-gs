@@ -1,0 +1,32 @@
+[project]
+name = "gsplat"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Julien Blanchon", email = "julien@blanchon" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "jaxtyping>=0.3.2",
+    "rich>=14.1.0",
+    "torch>=2.6.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.13,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "build>=1.3.0",
+    "isort>=6.0.1",
+    "ninja>=1.13.0",
+    "pylint>=3.3.8",
+    "pytest>=8.4.2",
+    "pytest-xdist>=3.8.0",
+    "pyyaml>=6.0.2",
+    "twine>=6.2.0",
+    "typeguard>=4.4.4",
+]

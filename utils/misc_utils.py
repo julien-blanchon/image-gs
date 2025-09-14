@@ -14,7 +14,11 @@ def clean_dir(path):
 
 
 def get_latest_ckpt_step(load_path):
-    saved_steps = [int(os.path.splitext(path)[0].split("-")[-1]) for path in os.listdir(load_path) if path.endswith(".pt")]
+    saved_steps = [
+        int(os.path.splitext(path)[0].split("-")[-1])
+        for path in os.listdir(load_path)
+        if path.endswith(".pt")
+    ]
     latest_step = -1 if len(saved_steps) == 0 else max(saved_steps)
     return latest_step
 
@@ -30,7 +34,7 @@ def set_random_seed(seed):
 
 
 def load_cfg(cfg_path: str, parser: ArgumentParser) -> ArgumentParser:
-    with open(cfg_path, "r", encoding='utf-8') as file:
+    with open(cfg_path, "r", encoding="utf-8") as file:
         cfg: dict = yaml.safe_load(file)
     for key, value in cfg.items():
         if value is None:
@@ -43,6 +47,6 @@ def load_cfg(cfg_path: str, parser: ArgumentParser) -> ArgumentParser:
 
 
 def save_cfg(path: str, args, mode="w"):
-    with open(path, mode=mode, encoding='utf-8') as file:
+    with open(path, mode=mode, encoding="utf-8") as file:
         print("#################### Training Config ####################", file=file)
         yaml.dump(vars(args), file, default_flow_style=False)

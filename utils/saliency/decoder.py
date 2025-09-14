@@ -6,7 +6,6 @@ import torch.nn.functional as F
 
 
 class Decoder(nn.Module):
-
     def __init__(self, shape, num_img_feat, num_pla_feat):
         super(Decoder, self).__init__()
         self.shape = shape
@@ -18,7 +17,7 @@ class Decoder(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                m.weight.data.normal_(0, math.sqrt(2. / n))
+                m.weight.data.normal_(0, math.sqrt(2.0 / n))
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
@@ -27,9 +26,7 @@ class Decoder(nn.Module):
         ans = nn.ModuleList()
         for _ in range(num_feat):
             m = nn.Sequential(
-                nn.Conv2d(1, 1, 3, padding=1),
-                nn.BatchNorm2d(1),
-                nn.ReLU(inplace=True)
+                nn.Conv2d(1, 1, 3, padding=1), nn.BatchNorm2d(1), nn.ReLU(inplace=True)
             )
             ans.append(m)
         return ans
@@ -38,7 +35,7 @@ class Decoder(nn.Module):
         return nn.Sequential(
             nn.Conv2d(planes, readout, 3, stride=1, padding=1),
             nn.BatchNorm2d(readout),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, x):
@@ -60,6 +57,6 @@ class Decoder(nn.Module):
 
 def build_decoder(model_path, *args):
     decoder = Decoder(*args)
-    loaded = torch.load(model_path, weights_only=True)['state_dict']
+    loaded = torch.load(model_path, weights_only=True)["state_dict"]
     decoder.load_state_dict(loaded)
     return decoder
