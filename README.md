@@ -1,3 +1,13 @@
+---
+title: Image-GS
+emoji: 📷
+colorFrom: yellow
+colorTo: orange
+sdk: gradio
+app_file: gradio_app.py
+pinned: false
+---
+
 <div align="center">
 
 <h1>Image-GS: Content-Adaptive Image Representation via 2D Gaussians</h1>
@@ -102,6 +112,61 @@ python main.py --input_path="images/anime-1_2k.png" --exp_name="test/anime-1_2k"
 ```bash
 python main.py --input_path="images/anime-1_2k.png" --exp_name="test/anime-1_2k" --num_gaussians=10000 --quantize --init_mode="saliency"
 ```
+
+## Gradio Web Interface
+
+We provide a user-friendly web interface built with Gradio for easy experimentation and training visualization.
+
+### Setup for Web Interface
+
+1. Install Gradio (in addition to the main dependencies):
+```bash
+pip install gradio>=4.0.0
+```
+
+2. Launch the web interface:
+```bash
+python gradio_app.py
+```
+
+3. Open your browser and navigate to `http://localhost:7860`
+
+### Features
+
+The Gradio interface provides:
+
+- **Interactive Parameter Configuration**: Adjust all training parameters through an intuitive UI
+- **Image Upload**: Drag and drop any image to train on
+- **Real-time Training Progress**: Stream training logs and intermediate results
+- **Live Visualization**: Watch Gaussian placement and rendering progress during training
+- **Result Gallery**: View final renders, gradient maps, and saliency maps
+- **Easy Experimentation**: No need to remember command-line arguments
+
+### Interface Sections
+
+1. **Configuration Panel**: 
+   - Basic parameters (number of Gaussians, training steps)
+   - Quantization settings for memory efficiency
+   - Initialization modes (gradient, saliency, random)
+   - Advanced optimization parameters (learning rates, loss weights)
+
+2. **Training Progress**: 
+   - Real-time streaming logs
+   - Current render and Gaussian visualization updates
+   - Training status and control buttons
+
+3. **Results Display**: 
+   - Final optimized image
+   - Gradient and saliency maps used for initialization
+   - Download capabilities for all results
+
+### Usage Tips
+
+- Start with default parameters for your first run
+- Use **saliency initialization** for better results on complex images
+- Enable **Gaussian visualization** to see how the representation evolves
+- Adjust **save image steps** to control visualization frequency (lower = more updates, but slower)
+- For quick tests, reduce **max steps** to 500-1000
 
 ### Command Line Arguments
 Please refer to `cfgs/default.yaml` for the full list of arguments and their default values.

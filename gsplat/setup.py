@@ -125,7 +125,8 @@ setup(
     },
     ext_modules=get_extensions() if not BUILD_NO_CUDA else [],
     cmdclass={"build_ext": get_ext()} if not BUILD_NO_CUDA else {},
-    packages=find_packages(),
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     # https://github.com/pypa/setuptools/issues/1461#issuecomment-954725244
     include_package_data=True,
 )

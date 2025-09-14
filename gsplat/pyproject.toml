@@ -3,19 +3,17 @@ name = "gsplat"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Julien Blanchon", email = "julien@blanchon" }
-]
 requires-python = ">=3.10"
 dependencies = [
     "jaxtyping>=0.3.2",
     "rich>=14.1.0",
     "torch>=2.6.0",
+    "numpy>=2.2.6",
 ]
 
 [build-system]
-requires = ["uv_build>=0.8.13,<0.9.0"]
-build-backend = "uv_build"
+requires = ["setuptools>=77.0.0", "wheel", "torch>=2.6.0", "numpy>=2.2.6"]
+build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
@@ -30,3 +28,6 @@ dev = [
     "twine>=6.2.0",
     "typeguard>=4.4.4",
 ]
+
+[tool.uv]
+package = true
